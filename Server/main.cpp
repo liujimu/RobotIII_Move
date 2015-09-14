@@ -291,7 +291,7 @@ int move2(Robots::ROBOT_BASE * pRobot, const Robots::GAIT_PARAM_BASE * pParam)
     {
         if(pMP->comID==6)
         {
-            std::copy_n(pMP->targetBodyPE, 6, realTargetPbody);
+            std::copy_n(pMP->targetBodyPE, 3, realTargetPbody);
         }
         else
         {
@@ -303,7 +303,7 @@ int move2(Robots::ROBOT_BASE * pRobot, const Robots::GAIT_PARAM_BASE * pParam)
     {
         if(pMP->comID==6)
         {
-            for(int i=0;i<6;i++)
+            for(int i=0;i<3;i++)
             {
                 realTargetPbody[i]+=pMP->targetBodyPE[i];
             }
@@ -381,7 +381,7 @@ Aris::Core::MSG parseSwing(const std::string &cmd, const map<std::string, std::s
 
 int swing(Robots::ROBOT_BASE * pRobot, const Robots::GAIT_PARAM_BASE * pParam)
 {
-    const SWING_PARAM *pMP = static_cast<const MOVES_PARAM *>(pParam);
+    const SWING_PARAM *pMP = static_cast<const SWING_PARAM *>(pParam);
 
     //计算圆弧半径和起始俯仰角
     double radius;
@@ -392,8 +392,8 @@ int swing(Robots::ROBOT_BASE * pRobot, const Robots::GAIT_PARAM_BASE * pParam)
     double s = -(pMP->swingRad / 2)*cos(PI * (pMP->count  + 1) / pMP->periodCount ) + pMP->swingRad / 2;
 
     /*插值当前的身体位置*/
-    double pBody[6]{0};
-    pBody[0] = pMP->beginBodyPE[1];
+    double pBody[6];
+    std::copy_n(pMP->beginBodyPE, 6, pBody);
     double currentRad;
     currentRad = beginRad + s;
     pBody[1] = pMP->centreP[1] + radius*sin(currentRad);
