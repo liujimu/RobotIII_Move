@@ -17,6 +17,10 @@ using namespace std;
 #include <Robot_Gait.h>
 #include <Robot_Base.h>
 
+#ifndef PI
+#define PI 3.141592653589793
+#endif
+
 using namespace Aris::Core;
 
 //#include "trajectory_generator.h"
@@ -162,6 +166,12 @@ struct MOVES_PARAM :public Robots::GAIT_PARAM_BASE
     bool isAbsolute{false}; //用于判断移动命令是绝对坐标还是相对坐标
 };
 
+struct SWING_PARAM :public Robots::GAIT_PARAM_BASE
+{
+    double centreP[3]{0};
+    double swingRad;
+    std::int32_t periodCount;
+};
 
 Aris::Core::MSG parseMove(const std::string &cmd, const map<std::string, std::string> &params)
 {
@@ -329,7 +339,74 @@ int move2(Robots::ROBOT_BASE * pRobot, const Robots::GAIT_PARAM_BASE * pParam)
 
 }
 
+Aris::Core::MSG parseSwing(const std::string &cmd, const map<std::string, std::string> &params)
+{
+    SWING_PARAM  param;
 
+    for(auto &i:params)
+    {
+        //绝对坐标移动
+        if(i.first=="x")
+        {
+            param.centreP[0]=stod(i.second);
+        }
+        else if(i.first=="y")
+        {
+            param.centreP[1]=stod(i.second);
+        }
+        else if(i.first=="z")
+        {
+            param.centreP[2]=stod(i.second);
+        }
+        else if(i.first=="deg")
+        {
+            param.swingRad=stod(i.second)/180*PI;//计算身体摆动的弧度
+        }
+        else
+        {
+            std::cout<<"parse failed"<<std::endl;
+            return MSG{};
+        }
+    }
+
+    param.periodCount=6000;
+
+    Aris::Core::MSG msg;
+    msg.CopyStruct(param);
+
+    std::cout<<"finished parse"<<std::endl;
+
+    return msg;
+}
+
+int swing(Robots::ROBOT_BASE * pRobot, const Robots::GAIT_PARAM_BASE * pParam)
+{
+    const SWING_PARAM *pMP = static_cast<const MOVES_PARAM *>(pParam);
+
+    //计算圆弧半径和起始俯仰角
+    double radius;
+    double beginRad;
+    radius = sqrt(pow((pMP->centreP[1] - pMP->beginBodyPE[1]),2) + pow((pMP->centreP[2] - pMP->beginBodyPE[2]),2));
+    beginRad = atan2((pMP->beginBodyPE[1] - pMP->centreP[1]) , -(pMP->beginBodyPE[2] - pMP->centreP[2]));
+
+    double s = -(pMP->swingRad / 2)*cos(PI * (pMP->count  + 1) / pMP->periodCount ) + pMP->swingRad / 2;
+
+    /*插值当前的身体位置*/
+    double pBody[6]{0};
+    pBody[0] = pMP->beginBodyPE[1];
+    double currentRad;
+    currentRad = beginRad + s;
+    pBody[1] = pMP->centreP[1] + radius*sin(currentRad);
+    pBody[2] = pMP->centreP[2] - radius*cos(currentRad);
+    pBody[4] = pMP->beginBodyPE[4] + s;//当前俯仰角
+
+    pRobot->SetPee(pMP->beginPee, pBody);
+
+    /*返回剩余的count数*/
+
+    return pMP->periodCount - pMP->count - 1;
+
+}
 
 int main()
 {
@@ -339,6 +416,7 @@ int main()
 	rs->AddGait("wk",Robots::walk,parseWalk);
 	rs->AddGait("ad",Robots::adjust,parseAdjust);
     rs->AddGait("move",move2,parseMove);
+    rs->AddGait("sw",swing,parseSwing);
 	rs->Start();
 	/**/
 	std::cout<<"finished"<<std::endl;

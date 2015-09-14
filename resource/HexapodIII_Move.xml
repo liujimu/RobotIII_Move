@@ -1560,6 +1560,14 @@
                     </move_pos>
                 </move_param>
             </move>
+            <sw>
+                <sw_param type="group">
+                    <x abbreviation="x" type="double" default="0"/>
+                    <y abbreviation="y" type="double" default="0"/>
+                    <z abbreviation="z" type="double" default="0"/>
+                    <deg abbreviation="d" type="double" default="0"/>
+                </sw_param>
+            </sw>
         </Commands>
         <Connection IP="127.0.0.1" Port="5866"/>
         <Control>
