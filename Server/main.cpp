@@ -295,7 +295,7 @@ int move2(Robots::ROBOT_BASE * pRobot, const Robots::GAIT_PARAM_BASE * pParam)
         }
         else
         {
-            std::copy_n(&(pMP->beginPee[pMP->comID*3]), 3, &realTargetPee[pMP->comID*3]);
+            std::copy_n(&(pMP->targetPee[pMP->comID*3]), 3, &realTargetPee[pMP->comID*3]);
         }
     }
     //相对坐标
@@ -332,6 +332,13 @@ int move2(Robots::ROBOT_BASE * pRobot, const Robots::GAIT_PARAM_BASE * pParam)
     }
 
     pRobot->SetPee(pEE, pBody);
+
+    /*test*/
+//    if(pMP->count%500==0)
+//    {
+//        rt_printf("rr: %f %f %f\n"
+//                        , pEE[15], pEE[16], pEE[17]);
+//    }
 
     /*返回剩余的count数*/
 
