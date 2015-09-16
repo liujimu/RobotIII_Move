@@ -409,6 +409,13 @@ int swing(Robots::ROBOT_BASE * pRobot, const Robots::GAIT_PARAM_BASE * pParam)
 
     pRobot->SetPee(pMP->beginPee, pBody);
 
+    /*test*/
+    if(pMP->count%500==0)
+    {
+        rt_printf("pBody: %f %f %f\n"
+                        , pBody[3], pBody[4], pBody[5]);
+    }
+
     /*返回剩余的count数*/
 
     return pMP->periodCount - pMP->count - 1;
