@@ -393,6 +393,8 @@ int swing(Robots::ROBOT_BASE * pRobot, const Robots::GAIT_PARAM_BASE * pParam)
     //计算圆弧半径和起始俯仰角
     double radius;
     double beginRad;
+    double beginBodyPE123[6];
+    s_pe2pe("313", pMP->beginBodyPE, "123", beginBodyPE123); //将起始身体位姿转换到123欧拉角
     radius = sqrt(pow((pMP->centreP[1] - pMP->beginBodyPE[1]),2) + pow((pMP->centreP[2] - pMP->beginBodyPE[2]),2));
     beginRad = atan2((pMP->beginBodyPE[1] - pMP->centreP[1]) , -(pMP->beginBodyPE[2] - pMP->centreP[2]));
 
@@ -400,18 +402,23 @@ int swing(Robots::ROBOT_BASE * pRobot, const Robots::GAIT_PARAM_BASE * pParam)
 
     /*插值当前的身体位置*/
     double pBody[6];
-    std::copy_n(pMP->beginBodyPE, 6, pBody);
+    double pBody123[6];
     double currentRad;
     currentRad = beginRad + s;
-    pBody[1] = pMP->centreP[1] + radius*sin(currentRad);
-    pBody[2] = pMP->centreP[2] - radius*cos(currentRad);
-    pBody[4] = pMP->beginBodyPE[4] + s;//当前俯仰角
+    std::copy_n(beginBodyPE123, 6, pBody123);
+
+    pBody123[1] = pMP->centreP[1] + radius*sin(currentRad);
+    pBody123[2] = pMP->centreP[2] - radius*cos(currentRad);
+    pBody123[3] = beginBodyPE123[3] + s;//当前俯仰角
+    s_pe2pe("123", pBody123, "313", pBody);
 
     pRobot->SetPee(pMP->beginPee, pBody);
 
     /*test*/
     if(pMP->count%500==0)
     {
+        rt_printf("beginRad: %f\n"
+                  , beginRad);
         rt_printf("pBody: %f %f %f\n"
                         , pBody[3], pBody[4], pBody[5]);
     }
