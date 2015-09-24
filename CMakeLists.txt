@@ -86,7 +86,7 @@ endif(UNIX)
 
 ################################### build server ####################################
 
-set(SOURCE_FILES main.cpp)
+set(SOURCE_FILES main.cpp Move_Gait.cpp)
 PREPEND(FULL_SRC Server ${SOURCE_FILES})
 add_executable(Server ${FULL_SRC})
 target_link_libraries(Server ${ROBOTS_LINK_LIBS} ${ARIS_LINK_LIBS} ${LAPACK_LINK_LIBS} ${ETHERLAB_LINK_LIBS} ${XENOMAI_LINK_LIBS} ${SYSTEM_LINK_LIBS})
