@@ -1,2 +1,7 @@
 Client/client.cpp
 Server/main.cpp
+resource/HexapodIII_Move.xml
+Server/Move_Gait.cpp
+Server/Move_Gait.h
+CMakeLists.txt
+resource/Robot_VIII.xml
