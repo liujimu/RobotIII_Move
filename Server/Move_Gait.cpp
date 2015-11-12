@@ -643,7 +643,7 @@ int continuousWalk(Robots::ROBOT_BASE * pRobot, const Robots::GAIT_PARAM_BASE * 
     //std::copy_n(lastPee, 18, realParam.beginPee);
     //std::copy_n(lastPbody, 6, realParam.beginBodyPE);
 
-    if ((!isStoppingCW) && ((pWP->count - pWP->totalCount +1) % (2 * pWP->totalCount) == 0))
+    if ((isStoppingCW) && ((pWP->count - pWP->totalCount +1) % (2 * pWP->totalCount) == 0))
     {
         isWalkingDec = true;
     }
