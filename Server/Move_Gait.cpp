@@ -4,6 +4,7 @@ using namespace Aris::DynKer;
 using namespace Robots;
 
 std::atomic_bool isStoppingCW;
+std::atomic_bool isWalkingDec;
 
 Aris::Core::MSG parseMove2(const std::string &cmd, const std::map<std::string, std::string> &params)
 {
@@ -537,6 +538,7 @@ Aris::Core::MSG parseCW(const std::string &cmd, const std::map<std::string, std:
     }
 
     isStoppingCW = false;
+    isWalkingDec = false;
 
     Aris::Core::MSG msg;
 
@@ -641,22 +643,27 @@ int continuousWalk(Robots::ROBOT_BASE * pRobot, const Robots::GAIT_PARAM_BASE * 
     //std::copy_n(lastPee, 18, realParam.beginPee);
     //std::copy_n(lastPbody, 6, realParam.beginBodyPE);
 
+    if ((!isStoppingCW) && ((pWP->count - pWP->totalCount +1) % (2 * pWP->totalCount) == 0))
+    {
+        isWalkingDec = true;
+    }
 
     if (pParam->count < pWP->totalCount)
     {
         walkAcc(pRobot, pParam);
         return 1;
     }
-    else if (!isStoppingCW)
-    {
-        walkConst(pRobot, &realParam);
-        return 1;
-    }
-    else
+    else if(isWalkingDec)
     {
         walkDec(pRobot, &realParam);
         return pWP->totalCount - realParam.count - 1;
     }
+    else
+    {
+        walkConst(pRobot, &realParam);
+        return 1;
+    }
+
 
     /*if ((pParam->count + pWP->totalCount + 1) %(2*pWP->totalCount)==0 )
     {
