@@ -64,13 +64,24 @@ struct SHOVEL_PARAM :public Robots::GAIT_PARAM_BASE
     std::int32_t periodNum{1};
 };
 
+enum WALK_DIRECTION
+{
+    STOP,
+    FORWARD,
+    BACKWARD,
+    RIGHT,
+    LEFT
+};
+
 /*parse function*/
 Aris::Core::MSG parseMove2(const std::string &cmd, const std::map<std::string, std::string> &params);
 Aris::Core::MSG parseSwing(const std::string &cmd, const std::map<std::string, std::string> &params);
 Aris::Core::MSG parsePre2Shv(const std::string &cmd, const std::map<std::string, std::string> &params);
 Aris::Core::MSG parseShovel(const std::string &cmd, const std::map<std::string, std::string> &params);
 Aris::Core::MSG parseCW(const std::string &cmd, const std::map<std::string, std::string> &params);
-Aris::Core::MSG parseStop(const std::string &cmd, const std::map<std::string, std::string> &params);
+Aris::Core::MSG parseCWStop(const std::string &cmd, const std::map<std::string, std::string> &params);
+Aris::Core::MSG parseCWF(const std::string &cmd, const std::map<std::string, std::string> &params);
+Aris::Core::MSG parseCWFStop(const std::string &cmd, const std::map<std::string, std::string> &params);
 
 /*operation function*/
 int move2(Robots::ROBOT_BASE * pRobot, const Robots::GAIT_PARAM_BASE * pParam);
@@ -78,3 +89,4 @@ int swing(Robots::ROBOT_BASE * pRobot, const Robots::GAIT_PARAM_BASE * pParam);
 int pre2shv(Robots::ROBOT_BASE * pRobot, const Robots::GAIT_PARAM_BASE * pParam);
 int shovel(Robots::ROBOT_BASE * pRobot, const Robots::GAIT_PARAM_BASE * pParam);
 int continuousWalk(Robots::ROBOT_BASE * pRobot, const Robots::GAIT_PARAM_BASE * pParam);
+int continuousWalkWithForce(Robots::ROBOT_BASE * pRobot, const Robots::GAIT_PARAM_BASE * pParam);

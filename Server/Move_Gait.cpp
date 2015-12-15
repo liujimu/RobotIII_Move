@@ -6,6 +6,8 @@ using namespace Robots;
 std::atomic_bool isStoppingCW;
 std::atomic_bool isWalkingDec;
 
+std::atomic_bool isStoppingCWF;
+
 Aris::Core::MSG parseMove2(const std::string &cmd, const std::map<std::string, std::string> &params)
 {
     MOVES_PARAM  param;
@@ -547,6 +549,15 @@ Aris::Core::MSG parseCW(const std::string &cmd, const std::map<std::string, std:
     return msg;
 }
 
+Aris::Core::MSG parseCWStop(const std::string &cmd, const std::map<std::string, std::string> &params)
+{
+    isStoppingCW = true;
+
+    Aris::Core::MSG msg;
+
+    return msg;
+}
+
 int continuousWalk(Robots::ROBOT_BASE * pRobot, const Robots::GAIT_PARAM_BASE * pParam)
 {
     const Robots::WALK_PARAM *pWP = static_cast<const Robots::WALK_PARAM *>(pParam);
@@ -674,12 +685,156 @@ int continuousWalk(Robots::ROBOT_BASE * pRobot, const Robots::GAIT_PARAM_BASE * 
     //return 2 * pWP->n * pWP->totalCount - pWP->count - 1;
 }
 
-
-Aris::Core::MSG parseStop(const std::string &cmd, const std::map<std::string, std::string> &params)
+Aris::Core::MSG parseCWF(const std::string &cmd, const std::map<std::string, std::string> &params)
 {
-    isStoppingCW = true;
+    Robots::WALK_PARAM  param;
+
+    for (auto &i : params)
+    {
+        if (i.first == "totalCount")
+        {
+            param.totalCount = std::stoi(i.second);
+        }
+        else if (i.first == "walkDirection")
+        {
+            param.walkDirection = std::stoi(i.second);
+        }
+        else if (i.first == "upDirection")
+        {
+            param.upDirection = std::stoi(i.second);
+        }
+        else if (i.first == "distance")
+        {
+            param.d = std::stod(i.second);
+        }
+        else if (i.first == "height")
+        {
+            param.h = std::stod(i.second);
+        }
+    }
+
+    isStoppingCWF=false;
+
+    Aris::Core::MSG msg;
+
+    msg.CopyStruct(param);
+
+    return msg;
+}
+
+Aris::Core::MSG parseCWFStop(const std::string &cmd, const std::map<std::string, std::string> &params)
+{
+    isStoppingCWF = true;
 
     Aris::Core::MSG msg;
 
     return msg;
+}
+
+int continuousWalkWithForce(Robots::ROBOT_BASE * pRobot, const Robots::GAIT_PARAM_BASE * pParam)
+{
+    const Robots::WALK_PARAM *pCWFP = static_cast<const Robots::WALK_PARAM *>(pParam);
+
+    static bool isWalking=false;
+    static int walkBeginCount{0};
+    static double walkBeginPee[18]{0};
+    static double walkBeginBodyPE[6]{0};
+    static double forceOffsetSum[3]{0};
+
+    double forceOffsetAvg[3]{0};
+    double realForceData[3]{0};
+    const double forceThreshold[3]{20,20,20};//力传感器的触发阈值,单位N
+
+    //力传感器手动清零
+    if (pCWFP->count<100)
+    {
+        if(pCWFP->count==0)
+        {
+            for(int i=0;i<3;i++)
+            {
+                forceOffsetSum[i]=0;
+            }
+        }
+        forceOffsetSum[0]+=pCWFP->pForceData->at(0).Fx;
+        forceOffsetSum[1]+=pCWFP->pForceData->at(0).Fy;
+        forceOffsetSum[2]+=pCWFP->pForceData->at(0).Fz;
+    }
+    else
+    {
+        for(int i=0;i<3;i++)
+        {
+            forceOffsetAvg[i]=forceOffsetSum[i]/100;
+        }
+        realForceData[0]=pCWFP->pForceData->at(0).Fx-forceOffsetAvg[0];
+        realForceData[1]=pCWFP->pForceData->at(0).Fy-forceOffsetAvg[1];
+        realForceData[2]=pCWFP->pForceData->at(0).Fz-forceOffsetAvg[2];
+
+        Robots::WALK_PARAM realParam = *pCWFP;
+
+        if(!isWalking)
+        {
+            WALK_DIRECTION walkDir=forceJudge(realForceData, forceThreshold);
+            if(walkDir!=STOP)
+            {
+                switch (walkDir)
+                {
+                case FORWARD:
+                    break;
+                case BACKWARD:
+                    realParam.d=-1*pCWFP->d;
+                    break;
+                case LEFT:
+                    realParam.alpha=-PI/2;
+                    break;
+                case RIGHT:
+                    realParam.alpha=PI/2;
+                    break;
+                default:
+                    break;
+                }
+                isWalking=true;
+                walkBeginCount=pCWFP->count;
+                pRobot->GetPee(realParam.beginPee);
+                pRobot->GetBodyPe(realParam.beginBodyPE);
+            }
+        }
+        else
+        {
+            realParam.count=pCWFP->count-walkBeginCount;
+            int ret=Robots::walk(pRobot, &realParam);
+            if(ret==0)
+            {
+                isWalking=false;
+            }
+        }
+    }
+
+    if(isStoppingCWF && (!isWalking))
+    {
+        return 0;
+    }
+    else
+    {
+        return 1;
+    }
+}
+
+WALK_DIRECTION forceJudge(const double *force, const double *threshold)
+{
+    WALK_DIRECTION walkDir{STOP};
+    if((std::fabs(force[0])-threshold[0])>(std::fabs(force[1])>threshold[1]))
+    {
+        if(force[0]<-threshold[0])
+            walkDir=FORWARD;
+        else if(force[0]>threshold[0])
+            walkDir=BACKWARD;
+    }
+    else
+    {
+        if(force[1]<-threshold[1])
+            walkDir=LEFT;
+        else if(force[1]>threshold[1])
+            walkDir=RIGHT;
+    }
+    return walkDir;
 }
