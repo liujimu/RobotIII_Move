@@ -69,8 +69,8 @@ enum WALK_DIRECTION
     STOP,
     FORWARD,
     BACKWARD,
-    RIGHT,
-    LEFT
+    RIGHTWARD,
+    LEFTWARD
 };
 
 /*parse function*/
@@ -90,3 +90,4 @@ int pre2shv(Robots::ROBOT_BASE * pRobot, const Robots::GAIT_PARAM_BASE * pParam)
 int shovel(Robots::ROBOT_BASE * pRobot, const Robots::GAIT_PARAM_BASE * pParam);
 int continuousWalk(Robots::ROBOT_BASE * pRobot, const Robots::GAIT_PARAM_BASE * pParam);
 int continuousWalkWithForce(Robots::ROBOT_BASE * pRobot, const Robots::GAIT_PARAM_BASE * pParam);
+WALK_DIRECTION forceJudge(const double *force, const double *threshold);

@@ -506,7 +506,17 @@
           <beta abbreviation="b" type="double" default="0"/>
         </cw_param>
       </cw>
-      <stop/>
+      <cws/>
+      <cwf default="cwf_param">
+        <cwf_param type="group">
+          <totalCount abbreviation="t" type="int" default="3000"/>
+          <walkDirection abbreviation="w" type="int" default="-3"/>
+          <upDirection abbreviation="u" type="int" default="2"/>
+          <distance abbreviation="d" type="double" default="0.5"/>
+          <height abbreviation="h" type="double" default="0.05"/>
+        </cwf_param>
+      </cwf>
+      <cwfs/>
       <move2>
         <move2_param type="group">
           <component abbreviation="c" type="string" default="bd"/>

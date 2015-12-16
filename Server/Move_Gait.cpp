@@ -737,8 +737,8 @@ int continuousWalkWithForce(Robots::ROBOT_BASE * pRobot, const Robots::GAIT_PARA
 
     static bool isWalking=false;
     static int walkBeginCount{0};
-    static double walkBeginPee[18]{0};
-    static double walkBeginBodyPE[6]{0};
+    //static double walkBeginPee[18]{0};
+    //static double walkBeginBodyPE[6]{0};
     static double forceOffsetSum[3]{0};
 
     double forceOffsetAvg[3]{0};
@@ -779,15 +779,19 @@ int continuousWalkWithForce(Robots::ROBOT_BASE * pRobot, const Robots::GAIT_PARA
                 switch (walkDir)
                 {
                 case FORWARD:
+                    rt_printf("Walking Forward");
                     break;
                 case BACKWARD:
                     realParam.d=-1*pCWFP->d;
+                    rt_printf("Walking Backward");
                     break;
-                case LEFT:
-                    realParam.alpha=-PI/2;
-                    break;
-                case RIGHT:
+                case LEFTWARD:
                     realParam.alpha=PI/2;
+                    rt_printf("Walking Leftward");
+                    break;
+                case RIGHTWARD:
+                    realParam.alpha=-PI/2;
+                    rt_printf("Walking Rightward");
                     break;
                 default:
                     break;
@@ -832,9 +836,9 @@ WALK_DIRECTION forceJudge(const double *force, const double *threshold)
     else
     {
         if(force[1]<-threshold[1])
-            walkDir=LEFT;
+            walkDir=LEFTWARD;
         else if(force[1]>threshold[1])
-            walkDir=RIGHT;
+            walkDir=RIGHTWARD;
     }
     return walkDir;
 }

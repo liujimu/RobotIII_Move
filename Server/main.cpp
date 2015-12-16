@@ -26,8 +26,9 @@ int main()
     rs->AddGait("pre2shv",pre2shv,parsePre2Shv);
     rs->AddGait("shovel",shovel,parseShovel);
     rs->AddGait("cw",continuousWalk,parseCW);
-    rs->AddGait("stop",continuousWalk,parseStop);
-
+    rs->AddGait("cws",continuousWalk,parseCWStop);
+    rs->AddGait("cwf",continuousWalkWithForce,parseCWF);
+    rs->AddGait("cwfs",continuousWalkWithForce,parseCWFStop);
     rs->Start();
 	/**/
 	std::cout<<"finished"<<std::endl;
