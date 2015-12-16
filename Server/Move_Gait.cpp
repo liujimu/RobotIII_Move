@@ -765,11 +765,15 @@ int continuousWalkWithForce(Robots::ROBOT_BASE * pRobot, const Robots::GAIT_PARA
         {
             forceOffsetAvg[i]=forceOffsetSum[i]/100;
         }
-        realForceData[0]=pCWFP->pForceData->at(0).Fx-forceOffsetAvg[0];
-        realForceData[1]=pCWFP->pForceData->at(0).Fy-forceOffsetAvg[1];
-        realForceData[2]=pCWFP->pForceData->at(0).Fz-forceOffsetAvg[2];
+        if(pCWFP->count==100)
+        {
+            rt_printf("forceOffsetAvg: %f %f %f\n",forceOffsetAvg[0],forceOffsetAvg[1],forceOffsetAvg[2]);
+        }
+        realForceData[0]=(pCWFP->pForceData->at(0).Fx-forceOffsetAvg[0])/1000;
+        realForceData[1]=(pCWFP->pForceData->at(0).Fy-forceOffsetAvg[1])/1000;
+        realForceData[2]=(pCWFP->pForceData->at(0).Fz-forceOffsetAvg[2])/1000;
 
-        Robots::WALK_PARAM realParam = *pCWFP;
+        static Robots::WALK_PARAM realParam = *pCWFP;
 
         if(!isWalking)
         {
@@ -779,19 +783,24 @@ int continuousWalkWithForce(Robots::ROBOT_BASE * pRobot, const Robots::GAIT_PARA
                 switch (walkDir)
                 {
                 case FORWARD:
-                    rt_printf("Walking Forward");
+                    realParam.d=pCWFP->d;
+                    realParam.alpha=0;
+                    rt_printf("Walking Forward\n");
                     break;
                 case BACKWARD:
                     realParam.d=-1*pCWFP->d;
-                    rt_printf("Walking Backward");
+                    realParam.alpha=0;
+                    rt_printf("Walking Backward\n");
                     break;
                 case LEFTWARD:
+                    realParam.d=pCWFP->d;
                     realParam.alpha=PI/2;
-                    rt_printf("Walking Leftward");
+                    rt_printf("Walking Leftward\n");
                     break;
                 case RIGHTWARD:
+                    realParam.d=pCWFP->d;
                     realParam.alpha=-PI/2;
-                    rt_printf("Walking Rightward");
+                    rt_printf("Walking Rightward\n");
                     break;
                 default:
                     break;
@@ -800,6 +809,9 @@ int continuousWalkWithForce(Robots::ROBOT_BASE * pRobot, const Robots::GAIT_PARA
                 walkBeginCount=pCWFP->count;
                 pRobot->GetPee(realParam.beginPee);
                 pRobot->GetBodyPe(realParam.beginBodyPE);
+
+                rt_printf("realForceData: %f %f %f\n",realForceData[0],realForceData[1],realForceData[2]);
+                rt_printf("beginBodyPE: %f %f %f\n",realParam.beginBodyPE[0],realParam.beginBodyPE[1],realParam.beginBodyPE[2]);
             }
         }
         else
@@ -808,6 +820,7 @@ int continuousWalkWithForce(Robots::ROBOT_BASE * pRobot, const Robots::GAIT_PARA
             int ret=Robots::walk(pRobot, &realParam);
             if(ret==0)
             {
+                rt_printf("Finish One Walking Step\n");
                 isWalking=false;
             }
         }

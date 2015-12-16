@@ -654,6 +654,7 @@
         </SlaveType>
         <Slave>
           <Motion1 type="ElmoSoloWhistle" maxSpeed="8738133"/>
+          <ForceSensor type="AtiForceSensor"/>
           <Motion2 type="ElmoSoloWhistle" maxSpeed="8738133"/>
           <Motion3 type="ElmoSoloWhistle" maxSpeed="8738133"/>
           <Motion4 type="ElmoSoloWhistle" maxSpeed="8738133"/>
