@@ -70,7 +70,11 @@ enum WALK_DIRECTION
     FORWARD,
     BACKWARD,
     RIGHTWARD,
-    LEFTWARD
+    LEFTWARD,
+    TURNLEFT,
+    TURNRIGHT,
+    FAST_TURNLEFT,
+    FAST_TURNRIGHT
 };
 
 /*parse function*/
