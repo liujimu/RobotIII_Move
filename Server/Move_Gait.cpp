@@ -743,7 +743,7 @@ int continuousWalkWithForce(Robots::ROBOT_BASE * pRobot, const Robots::GAIT_PARA
 
     double forceOffsetAvg[3]{0};
     double realForceData[3]{0};
-    const double forceThreshold[3]{20,20,10};//力传感器的触发阈值,单位N
+    const double forceThreshold[3]{20,20,10};//力传感器的触发阈值,单位N或Nm
 
     //力传感器手动清零
     if (pCWFP->count<100)
@@ -810,26 +810,27 @@ int continuousWalkWithForce(Robots::ROBOT_BASE * pRobot, const Robots::GAIT_PARA
                     realParam.d=0;
                     realParam.alpha=0;
                     realParam.beta=PI/12;
-                    rt_printf("Walking Rightward\n");
+                    rt_printf("Turning Left\n");
                     break;
                 case TURNRIGHT:
                     realParam.d=0;
                     realParam.alpha=0;
                     realParam.beta=-PI/12;
-                    rt_printf("Walking Rightward\n");
+                    rt_printf("Turning Right\n");
                     break;
                 case FAST_TURNLEFT:
                     realParam.d=0;
                     realParam.alpha=0;
                     realParam.beta=PI/6;
-                    rt_printf("Walking Rightward\n");
+                    rt_printf("Fast Turning Left\n");
                     break;
                 case FAST_TURNRIGHT:
                     realParam.d=0;
                     realParam.alpha=0;
                     realParam.beta=-PI/6;
-                    rt_printf("Walking Rightward\n");
-                    break;                default:
+                    rt_printf("Fast Turning Right\n");
+                    break;
+                default:
                     break;
                 }
                 isWalking=true;
@@ -866,7 +867,7 @@ int continuousWalkWithForce(Robots::ROBOT_BASE * pRobot, const Robots::GAIT_PARA
 WALK_DIRECTION forceJudge(const double *force, const double *threshold)
 {
     WALK_DIRECTION walkDir{STOP};
-    if(std::fabs(force[2]) - threshold[2])
+    if(std::fabs(force[2]) > threshold[2])
     {
         if(force[2] < -2*threshold[2])
             walkDir=FAST_TURNRIGHT;
@@ -877,7 +878,7 @@ WALK_DIRECTION forceJudge(const double *force, const double *threshold)
         else if(force[2] > threshold[2])
             walkDir=TURNLEFT;
     }
-    else if(std::fabs(std::fabs(force[0]) -threshold[0]) > std::fabs(std::fabs(force[1]) - threshold[1]))
+    else if(std::fabs(std::fabs(force[0]) - threshold[0]) > std::fabs(std::fabs(force[1]) - threshold[1]))
     {
         if(force[0] < -threshold[0])
             walkDir=FORWARD;
