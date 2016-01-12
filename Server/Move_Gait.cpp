@@ -743,7 +743,8 @@ int continuousWalkWithForce(Robots::ROBOT_BASE * pRobot, const Robots::GAIT_PARA
 
     double forceOffsetAvg[3]{0};
     double realForceData[3]{0};
-    const double forceThreshold[3]{20,20,10};//力传感器的触发阈值,单位N或Nm
+    const double forceThreshold[3]{40,40,40};//力传感器的触发阈值,单位N或Nm
+    const double forceAMFactor=1;
 
     //力传感器手动清零
     if (pCWFP->count<100)
@@ -769,9 +770,9 @@ int continuousWalkWithForce(Robots::ROBOT_BASE * pRobot, const Robots::GAIT_PARA
         {
             rt_printf("forceOffsetAvg: %f %f %f\n",forceOffsetAvg[0],forceOffsetAvg[1],forceOffsetAvg[2]);
         }
-        realForceData[0]=(pCWFP->pForceData->at(0).Fx-forceOffsetAvg[0]);
-        realForceData[1]=(pCWFP->pForceData->at(0).Fy-forceOffsetAvg[1]);
-        realForceData[2]=(pCWFP->pForceData->at(0).Mz-forceOffsetAvg[2]);
+        realForceData[0]=(pCWFP->pForceData->at(0).Fx-forceOffsetAvg[0])/forceAMFactor;
+        realForceData[1]=(pCWFP->pForceData->at(0).Fy-forceOffsetAvg[1])/forceAMFactor;
+        realForceData[2]=(pCWFP->pForceData->at(0).Mz-forceOffsetAvg[2])/forceAMFactor;
 
         static Robots::WALK_PARAM realParam = *pCWFP;
 
